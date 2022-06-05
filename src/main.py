@@ -6,6 +6,7 @@ __license__ = "MIT"
 import logging
 import static.constants as globals
 from random import randint
+from copy import deepcopy
 
 
 class Sudoku:
@@ -14,12 +15,14 @@ class Sudoku:
 
     Attributes
     ----------
-    logger: Logger
+    logger:         Logger
         The main file logger of Sudoku.
-    slots: list
+    slots:          list
         Slots of the Sudoku (count=81 in a normal Sudoku game).
-    helpers: list
+    helpers:        list
         Helpers of the Sudoku (maximum 81 times 9 at the starting point).
+    filled_indexes: list
+        List of indexes fullfilled with a number.
 
     Methods
     -------
@@ -52,6 +55,7 @@ class Sudoku:
             self.slots          = []
             self.helpers        = []
             self.helpers_sizes  = []
+            self.filled_indexes = []
             self.logger.info('Done initializing attributes')
             self.logger.info('Attributes info:')
             self.logger.info('Slots:')
@@ -81,29 +85,26 @@ class Sudoku:
     
     def generate_game(self) -> None:
         self.logger.debug('Entering Sudoku::generate_game')
-
         self.logger.info('Generating game matrixes')
         self.generate_slots_and_helpers()
-
         self.logger.debug('Leaving Sudoku::generate_game')
     
     def generate_slots_and_helpers(self) -> None:
         self.logger.debug('Entering Sudoku::generate_slots')
-
         self.logger.info('Generating slots and helpers')
         for _ in range(globals.N_SLOTS):
             self.slots.append(globals.NO_ENTRY)
-            self.helpers.append(globals.DEFAULT_HELPERS)
-            self.helpers_sizes.append(len(globals.DEFAULT_HELPERS))
+            default_helpers_dc: list = deepcopy(globals.DEFAULT_HELPERS)
+            self.helpers.append(default_helpers_dc)
+            self.helpers_sizes.append(len(default_helpers_dc))
         self.logger.info('Done generating slots and helpers')
         self.logger.info('Attributes info:')
-        self.logger.info('Slots:')
-        self.logger.info(self.slots)
-        self.logger.info('Helpers:')
-        self.logger.info(self.helpers)
-        self.logger.info('Size of helpers:')
-        self.logger.info(self.helpers_sizes)
-
+        self.logger.debug('Slots:')
+        self.logger.debug(self.slots)
+        self.logger.debug('Helpers:')
+        self.logger.debug(self.helpers)
+        self.logger.debug('Size of helpers:')
+        self.logger.debug(self.helpers_sizes)
         self.logger.debug('Leaving Sudoku::generate_slots')
     
     def choose_random_slot(self) -> tuple:
@@ -112,36 +113,70 @@ class Sudoku:
         self.logger.info('Choosing a random slot')
         helpers_min_indexes:    list    = []
         helpers_min_val:        int     = min(self.helpers_sizes)
-        for i, helpers_size in enumerate(self.helpers_sizes):
-            if helpers_size == helpers_min_val and helpers_size != 0:
+        for i, helpers_size in enumerate(deepcopy(self.helpers_sizes)):
+            if helpers_size == helpers_min_val and helpers_size != 0 and i not in self.filled_indexes:
                 helpers_min_indexes.append(i)
         if len(helpers_min_indexes) == 0:
             self.generate_end_game()
         self.logger.info('Done choosing a random slot')
-        self.logger.info('Helpers min val:')
-        self.logger.info(helpers_min_val)
-        self.logger.info('Helpers min indexes:')
-        self.logger.info(helpers_min_indexes)
+        self.logger.debug('Helpers min val:')
+        self.logger.debug(helpers_min_val)
+        self.logger.debug('Helpers min indexes:')
+        self.logger.debug(helpers_min_indexes)
         self.logger.info('Choosing an index')
-        chosen_slot_index: int = randint(0, len(helpers_min_indexes) - 1)
-        helpers_at_chosen_slot_index: list = self.helpers[chosen_slot_index]
-        index_of_helper_at_chosen_slot_index: int = randint(0, len(helpers_at_chosen_slot_index) - 1)
-        value_of_helper_at_chosen_slot_index: int = helpers_at_chosen_slot_index[index_of_helper_at_chosen_slot_index]
+        chosen_helpers_min_index:               int     = randint(0, len(helpers_min_indexes) - 1)
+        chosen_index:                           int     = helpers_min_indexes[chosen_helpers_min_index]
+        helpers_at_chosen_slot_index:           list    = self.helpers[chosen_index]
+        index_of_helper_at_chosen_slot_index:   int     = randint(0, len(helpers_at_chosen_slot_index) - 1)
+        value_of_helper_at_chosen_slot_index:   int     = helpers_at_chosen_slot_index[index_of_helper_at_chosen_slot_index]
         self.logger.info('Done choosing an index')
-        self.logger.info('Chosen slot index:')
-        self.logger.info(chosen_slot_index)
+        self.logger.info('Chosen helpers min index:')
+        self.logger.info(chosen_helpers_min_index)
         self.logger.info('Helpers at chosen slot index:')
         self.logger.info(helpers_at_chosen_slot_index)
-        self.logger.info('Index of helper at chosen slot index:')
-        self.logger.info(index_of_helper_at_chosen_slot_index)
-        self.logger.info('Value of helper at chosen slot index:')
-        self.logger.info(value_of_helper_at_chosen_slot_index)
+        self.logger.debug('Index of helper at chosen slot index:')
+        self.logger.debug(index_of_helper_at_chosen_slot_index)
+        self.logger.debug('Value of helper at chosen slot index:')
+        self.logger.debug(value_of_helper_at_chosen_slot_index)
+        self.logger.info('Updating helpers')
+        self.update_game(chosen_index, value_of_helper_at_chosen_slot_index)
+        self.logger.info('Done updating helpers')
         self.logger.debug('Leaving Sudoku::choose_random_slot')
-        return chosen_slot_index, value_of_helper_at_chosen_slot_index
+        return chosen_index, value_of_helper_at_chosen_slot_index
 
-    def update_helpers(self, chosen_index: int) -> None:
+    def update_game(self, chosen_slot_index: int, value_of_helper_at_chosen_slot_index: int) -> None:
         self.logger.debug('Entering Sudoku::update_helpers')
-        self.helpers_sizes[chosen_index] -= 1
+        self.logger.info('Updating filled indexes')
+        self.filled_indexes.append(chosen_slot_index)
+        self.logger.debug('Filled indexes:')
+        self.logger.debug(self.filled_indexes)
+        self.logger.info('Done updating filled indexes')
+        self.logger.info('Updating row helpers')
+        row_index: int = chosen_slot_index // globals.N_ROWS
+        self.logger.debug('Row index:')
+        self.logger.debug(row_index)
+        min_row_range: int = row_index * (globals.N_ROWS)
+        self.logger.debug('Min row range:')
+        self.logger.debug(min_row_range)
+        max_row_range: int = (row_index + 1) * (globals.N_ROWS) - 1
+        self.logger.debug('Max row range:')
+        self.logger.debug(max_row_range)
+        for i in range(min_row_range, max_row_range):
+            if value_of_helper_at_chosen_slot_index not in self.helpers[i]:
+                continue
+            self.helpers[i].remove(value_of_helper_at_chosen_slot_index)
+            self.helpers_sizes[i] -= 1
+        self.logger.debug('Helpers:')
+        self.logger.debug(self.helpers)
+        self.logger.debug('Helpers sizes:')
+        self.logger.debug(self.helpers_sizes)
+        self.logger.info('Done updating row helpers')
+
+        self.logger.info('Updating column helpers')
+        self.logger.info('Done updating column helpers')
+
+
+
         self.logger.debug('Leaving Sudoku::update_helpers')
     
     def generate_end_game(self):
@@ -151,4 +186,12 @@ class Sudoku:
 
 sudoku: Sudoku = Sudoku('logging.log', logging.DEBUG)
 sudoku.play()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
+sudoku.choose_random_slot()
 sudoku.choose_random_slot()
