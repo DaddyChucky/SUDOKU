@@ -1,0 +1,5 @@
+2022-06-05 00:26:49,875 Entering Sudoku::__init__
+2022-06-05 00:26:49,876 Logger successfully instantiated
+2022-06-05 00:26:49,876 Leaving Sudoku::__init__
+2022-06-05 00:26:49,876 Entering Sudoku::play
+2022-06-05 00:26:49,876 Leaving Sudoku::__init__
