@@ -114,16 +114,19 @@ class Sudoku:
         helpers_min_indexes:    list    = []
         helpers_min_val:        int     = min(self.helpers_sizes)
         for i, helpers_size in enumerate(deepcopy(self.helpers_sizes)):
-            if helpers_size == helpers_min_val and helpers_size != 0 and i not in self.filled_indexes:
+            if (helpers_size == helpers_min_val or helpers_size > globals.MIN_HELPERS_SIZE_BYPASS) and helpers_size != 0 and i not in self.filled_indexes:
                 helpers_min_indexes.append(i)
-        if len(helpers_min_indexes) == 0:
+        if len(helpers_min_indexes) - 1 == 0:
             self.generate_end_game()
+            exit(-1)
         self.logger.info('Done choosing a random slot')
         self.logger.debug('Helpers min val:')
         self.logger.debug(helpers_min_val)
         self.logger.debug('Helpers min indexes:')
         self.logger.debug(helpers_min_indexes)
         self.logger.info('Choosing an index')
+        print(len(helpers_min_indexes) - 1)
+        print(helpers_min_indexes)
         chosen_helpers_min_index:               int     = randint(0, len(helpers_min_indexes) - 1)
         chosen_index:                           int     = helpers_min_indexes[chosen_helpers_min_index]
         helpers_at_chosen_slot_index:           list    = self.helpers[chosen_index]
@@ -161,7 +164,7 @@ class Sudoku:
         max_row_range: int = (row_index + 1) * (globals.N_ROWS) - 1
         self.logger.debug('Max row range:')
         self.logger.debug(max_row_range)
-        for i in range(min_row_range, max_row_range):
+        for i in range(min_row_range, max_row_range + 1):
             if value_of_helper_at_chosen_slot_index not in self.helpers[i]:
                 continue
             self.helpers[i].remove(value_of_helper_at_chosen_slot_index)
@@ -175,8 +178,6 @@ class Sudoku:
         self.logger.info('Updating column helpers')
         self.logger.info('Done updating column helpers')
 
-
-
         self.logger.debug('Leaving Sudoku::update_helpers')
     
     def generate_end_game(self):
@@ -186,12 +187,6 @@ class Sudoku:
 
 sudoku: Sudoku = Sudoku('logging.log', logging.DEBUG)
 sudoku.play()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
-sudoku.choose_random_slot()
+for i in range(80):
+    sudoku.choose_random_slot()
+
