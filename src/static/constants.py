@@ -93,9 +93,10 @@ SQUARES_OFFSETS: dict = {
     79: [60, 62, 69, 71],
     80: [60, 61, 69, 70]
 }
-z = ""
-for y in range(9):
-    for x in range(9):
-        z += str(x + y * 9) + " | "
-    print(z, '\n')
-    z = ''
+
+# z = ""
+# for y in range(9):
+#     for x in range(9):
+#         z += str(x + y * 9) + " | "
+#     print(z, '\n')
+#     z = ''
