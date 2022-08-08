@@ -10,4 +10,7 @@ PROJECT CURRENTLY IN DEVELOPMENT. PLEASE COME AGAIN LATER. :)
 - Application de bureau pour Sudoku programmé en Python !
 - Inclus un générateur aléatoire de Sudokus, de même qu'un solveur automatique.
 
+## Author / Auteur:
+- Charles De Lafontaine
+
 CE PROJET EST PRÉSENTEMENT EN DÉVELOPPEMENT. VEUILLEZ REVENIR UN PEU PLUS TARD. :)
