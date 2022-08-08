@@ -6,7 +6,7 @@
 
 PROJECT CURRENTLY IN DEVELOPMENT. PLEASE COME AGAIN LATER. :)
 
-[FR] Description:
+## [FR] Description:
 - Application de bureau pour Sudoku programmé en Python !
 - Inclus un générateur aléatoire de Sudokus, de même qu'un solveur automatique.
 
